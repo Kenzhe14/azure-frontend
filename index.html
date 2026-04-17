@@ -97,24 +97,55 @@
         function renderResults(data) {
             const container = document.getElementById('results');
             if (data.status === "success" && data.faces_detected > 0) {
-                container.innerHTML = `<h3>Найдено лиц: ${data.faces_detected}</h3>`;
+                container.innerHTML = `<h3>🔍 Результат анализа:</h3>`;
 
                 data.details.forEach((face, index) => {
-                    const emotion = face.Emotions.reduce((prev, current) => (prev.Confidence > current.Confidence) ? prev : current);
+                    // Находим доминирующую эмоцию
+                    const emotion = face.Emotions.reduce((prev, current) =>
+                        (prev.Confidence > current.Confidence) ? prev : current);
+
+                    // Определяем пол (Gender)
+                    const gender = face.Gender.Value === 'Male' ? 'Мужчина' : 'Женщина';
+                    const genderEmoji = face.Gender.Value === 'Male' ? '👨' : '👩';
 
                     const div = document.createElement('div');
                     div.className = 'result-item';
                     div.innerHTML = `
-                    <strong>Лицо №${index + 1}</strong><br>
-                    • Эмоция: ${emotion.Type} (${Math.round(emotion.Confidence)}%)<br>
-                    • Возраст: ~${face.AgeRange.Low} - ${face.AgeRange.High} лет<br>
-                    • Очки: ${face.Eyeglasses.Value ? "Да" : "Нет"}
-                `;
+                <div style="border-bottom: 1px solid #ccc; margin-bottom: 8px; padding-bottom: 4px;">
+                    <strong>${genderEmoji} Лицо №${index + 1} (${gender})</strong>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; font-size: 0.85em;">
+                    <span>🎭 <b>Эмоция:</b> ${translateEmotion(emotion.Type)}</span>
+                    <span>🎂 <b>Возраст:</b> ${face.AgeRange.Low}-${face.AgeRange.High}</span>
+                    
+                    <span>😊 <b>Улыбка:</b> ${face.Smile.Value ? 'Да' : 'Нет'}</span>
+                    <span>👓 <b>Очки:</b> ${face.Eyeglasses.Value ? 'Да' : 'Нет'}</span>
+                    
+                    <span>🧔 <b>Борода:</b> ${face.Beard.Value ? 'Есть' : 'Нет'}</span>
+                    <span>🥸 <b>Усы:</b> ${face.Mustache.Value ? 'Есть' : 'Нет'}</span>
+                    
+                    <span>👁️ <b>Глаза открыты:</b> ${face.EyesOpen.Value ? 'Да' : 'Нет'}</span>
+                    <span>👄 <b>Рот открыт:</b> ${face.MouthOpen.Value ? 'Да' : 'Нет'}</span>
+                </div>
+                <div style="margin-top: 8px; font-size: 0.75em; color: #666;">
+                    📸 <b>Качество фото:</b> Освещенность ${Math.round(face.Quality.Brightness)}%, Резкость ${Math.round(face.Quality.Sharpness)}%
+                </div>
+            `;
                     container.appendChild(div);
                 });
             } else {
-                container.innerHTML = "<p>Лица не обнаружены или произошла ошибка.</p>";
+                container.innerHTML = "<p>Лица не обнаружены. Попробуйте другое фото!</p>";
             }
+        }
+
+        // Вспомогательная функция для перевода эмоций
+        function translateEmotion(type) {
+            const emotions = {
+                'HAPPY': 'Счастье', 'SAD': 'Грусть', 'ANGRY': 'Гнев',
+                'CONFUSED': 'Смущение', 'DISGUSTED': 'Отвращение',
+                'SURPRISED': 'Удивление', 'CALM': 'Спокойствие', 'UNKNOWN': 'Неизвестно'
+            };
+            return emotions[type] || type;
         }
     </script>
 
