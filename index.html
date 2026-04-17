@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+
+<body>
+    <h2>Cloud Image Analyzer</h2>
+    <input type="file" id="imageInput">
+    <button onclick="upload()">Анализировать</button>
+    <pre id="result"></pre>
+
+    <script>
+        async function upload() {
+            const file = document.getElementById('imageInput').files[0];
+            const formData = new FormData();
+            formData.append('image', file);
+
+            const response = await fetch('analystapp-becagvgvgubnh5hr.canadacentral-01.azurewebsites.net/analyze', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            document.getElementById('result').innerText = JSON.stringify(data, null, 2);
+        }
+    </script>
+</body>
+
+</html>
