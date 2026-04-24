@@ -4,79 +4,388 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Face Analyzer</title>
+    <title>AI Face Analyzer | Modern</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: sans-serif;
-            max-width: 600px;
-            margin: 50px auto;
-            text-align: center;
-            background: #f4f7f6;
+        :root {
+            --bg-dark: #09090b;
+            --bg-card: rgba(24, 24, 27, 0.65);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --accent-primary: #8b5cf6;
+            --accent-secondary: #3b82f6;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
         }
 
-        .card {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Abstract Glow Patterns */
+        .glow-circle {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: 0;
+            opacity: 0.4;
+            animation: pulse 8s ease-in-out infinite alternate;
+        }
+
+        .glow-1 {
+            width: 400px;
+            height: 400px;
+            background: var(--accent-primary);
+            top: -100px;
+            left: -100px;
+        }
+
+        .glow-2 {
+            width: 350px;
+            height: 350px;
+            background: var(--accent-secondary);
+            bottom: -50px;
+            right: -50px;
+            animation-delay: -4s;
+        }
+
+        .wrapper {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 640px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #c4b5fd, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            font-weight: 300;
+        }
+
+        .glass-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease;
+        }
+
+        .upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .upload-area:hover {
+            border-color: var(--accent-secondary);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .upload-area input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 2;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--accent-secondary);
+        }
+
+        .upload-text {
+            font-size: 1.1rem;
+            color: var(--text-main);
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .upload-subtext {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        #preview-container {
+            display: none;
+            width: 100%;
+            margin-top: 24px;
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
 
         #preview {
-            max-width: 100%;
-            margin-top: 15px;
-            border-radius: 5px;
+            width: 100%;
+            display: block;
+            object-fit: cover;
+            border-radius: 16px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            margin-top: 24px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.5);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Loader */
+        .loader {
             display: none;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.3; }
+            100% { transform: scale(1.1); opacity: 0.5; }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Results Area */
+        #results {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 24px;
         }
 
         .result-item {
-            text-align: left;
-            background: #eef2f3;
-            padding: 10px;
-            margin-top: 10px;
-            border-radius: 5px;
-            font-size: 0.9em;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 20px;
+            animation: slideUp 0.5s ease backwards;
         }
 
-        .loading {
-            display: none;
-            color: #0078d4;
-            font-weight: bold;
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+            font-size: 1.15rem;
+            font-weight: 600;
+        }
+
+        .grid-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        .stat-card {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 12px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            border: 1px solid rgba(255,255,255,0.02);
+            transition: background 0.3s;
+        }
+        
+        .stat-card:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .stat-icon {
+            font-size: 1.2rem;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .quality-banner {
+            margin-top: 16px;
+            background: rgba(59, 130, 246, 0.1);
+            color: #93c5fd;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Hide specific elements initially */
+        .hidden {
+            display: none !important;
         }
     </style>
 </head>
 
 <body>
+    <!-- Background Elements -->
+    <div class="glow-circle glow-1"></div>
+    <div class="glow-circle glow-2"></div>
 
-    <div class="card">
-        <h2>Анализатор лиц </h2>
-        <input type="file" id="imageInput" accept="image/*" onchange="previewImage()">
-        <img id="preview" src="" alt="Preview">
-        <br><br>
-        <button onclick="upload()" id="uploadBtn">Проанализировать фото</button>
+    <div class="wrapper">
+        <div class="header">
+            <h1>Анализатор Лиц</h1>
+            <p>Загрузите фото для детального AI-анализа эмоций и атрибутов</p>
+        </div>
 
-        <div id="loader" class="loading">Обработка нейросетями AWS...</div>
+        <div class="glass-card">
+            <!-- Upload Zone -->
+            <div class="upload-area" id="dropArea">
+                <input type="file" id="imageInput" accept="image/*" onchange="previewImage()">
+                <div class="upload-icon">📷</div>
+                <div class="upload-text">Нажмите или перетащите фото</div>
+                <div class="upload-subtext">JPEG, PNG до 5MB</div>
+            </div>
+
+            <!-- Preview -->
+            <div id="preview-container">
+                <img id="preview" src="" alt="Ваше фото">
+            </div>
+
+            <!-- Action Button -->
+            <button class="btn hidden" id="uploadBtn" onclick="upload()">
+                <span id="btnText">Проанализировать</span>
+                <div class="loader" id="loader"></div>
+            </button>
+        </div>
+
+        <!-- Results -->
         <div id="results"></div>
     </div>
 
     <script>
         function previewImage() {
             const file = document.getElementById('imageInput').files[0];
+            const previewContainer = document.getElementById('preview-container');
             const preview = document.getElementById('preview');
+            const uploadBtn = document.getElementById('uploadBtn');
+            const dropArea = document.getElementById('dropArea');
+
             if (file) {
                 preview.src = URL.createObjectURL(file);
-                preview.style.display = 'block';
+                previewContainer.style.display = 'block';
+                uploadBtn.classList.remove('hidden');
+                dropArea.style.display = 'none'; // Скрываем зону загрузки после выбора
+                document.getElementById('results').innerHTML = ''; // Очищаем прошлые результаты
             }
         }
 
         async function upload() {
             const fileInput = document.getElementById('imageInput');
-            if (!fileInput.files[0]) return alert("Выберите файл!");
+            if (!fileInput.files[0]) return alert("Сначала выберите файл!");
+
+            const btn = document.getElementById('uploadBtn');
+            const btnText = document.getElementById('btnText');
+            const loader = document.getElementById('loader');
 
             const formData = new FormData();
             formData.append('image', fileInput.files[0]);
 
-            // Показываем лоадер
-            document.getElementById('loader').style.display = 'block';
+            // UI Loading state
+            btn.disabled = true;
+            btnText.textContent = 'Обработка AWS...';
+            loader.style.display = 'block';
             document.getElementById('results').innerHTML = '';
 
             try {
@@ -88,67 +397,103 @@
                 const data = await response.json();
                 renderResults(data);
             } catch (error) {
-                alert("Ошибка при связи с Azure: " + error);
+                alert("Ошибка соединения с сервером Azure: " + error.message);
             } finally {
-                document.getElementById('loader').style.display = 'none';
+                // Restore UI
+                btn.disabled = false;
+                btnText.textContent = 'Проанализировать заново';
+                loader.style.display = 'none';
             }
+        }
+
+        function translateEmotion(type) {
+            const emotions = {
+                'HAPPY': { text: 'Радость', emoji: '😄' },
+                'SAD': { text: 'Грусть', emoji: '😢' },
+                'ANGRY': { text: 'Гнев', emoji: '😠' },
+                'CONFUSED': { text: 'Смущение', emoji: '😕' },
+                'DISGUSTED': { text: 'Отвращение', emoji: '🤢' },
+                'SURPRISED': { text: 'Удивление', emoji: '😲' },
+                'CALM': { text: 'Спокойствие', emoji: '😌' },
+                'UNKNOWN': { text: 'Неизвестно', emoji: '🤔' }
+            };
+            return emotions[type] || { text: type, emoji: '🎭' };
         }
 
         function renderResults(data) {
             const container = document.getElementById('results');
+            
             if (data.status === "success" && data.faces_detected > 0) {
-                container.innerHTML = `<h3>🔍 Результат анализа:</h3>`;
+                let html = '';
 
                 data.details.forEach((face, index) => {
-                    // Находим доминирующую эмоцию
-                    const emotion = face.Emotions.reduce((prev, current) =>
+                    const emotionRaw = face.Emotions.reduce((prev, current) =>
                         (prev.Confidence > current.Confidence) ? prev : current);
-
-                    // Определяем пол (Gender)
+                    
+                    const emotion = translateEmotion(emotionRaw.Type);
                     const gender = face.Gender.Value === 'Male' ? 'Мужчина' : 'Женщина';
                     const genderEmoji = face.Gender.Value === 'Male' ? '👨' : '👩';
 
-                    const div = document.createElement('div');
-                    div.className = 'result-item';
-                    div.innerHTML = `
-                <div style="border-bottom: 1px solid #ccc; margin-bottom: 8px; padding-bottom: 4px;">
-                    <strong>${genderEmoji} Лицо №${index + 1} (${gender})</strong>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; font-size: 0.85em;">
-                    <span>🎭 <b>Эмоция:</b> ${translateEmotion(emotion.Type)}</span>
-                    <span>🎂 <b>Возраст:</b> ${face.AgeRange.Low}-${face.AgeRange.High}</span>
-                    
-                    <span>😊 <b>Улыбка:</b> ${face.Smile.Value ? 'Да' : 'Нет'}</span>
-                    <span>👓 <b>Очки:</b> ${face.Eyeglasses.Value ? 'Да' : 'Нет'}</span>
-                    
-                    <span>🧔 <b>Борода:</b> ${face.Beard.Value ? 'Есть' : 'Нет'}</span>
-                    <span>🥸 <b>Усы:</b> ${face.Mustache.Value ? 'Есть' : 'Нет'}</span>
-                    
-                    <span>👁️ <b>Глаза открыты:</b> ${face.EyesOpen.Value ? 'Да' : 'Нет'}</span>
-                    <span>👄 <b>Рот открыт:</b> ${face.MouthOpen.Value ? 'Да' : 'Нет'}</span>
-                </div>
-                <div style="margin-top: 8px; font-size: 0.75em; color: #666;">
-                    📸 <b>Качество фото:</b> Освещенность ${Math.round(face.Quality.Brightness)}%, Резкость ${Math.round(face.Quality.Sharpness)}%
-                </div>
-            `;
-                    container.appendChild(div);
+                    html += `
+                        <div class="result-item" style="animation-delay: ${index * 0.1}s">
+                            <div class="result-header">
+                                <span>${genderEmoji}</span> 
+                                <span>Лицо #${index + 1} &mdash; ${gender}</span>
+                            </div>
+                            
+                            <div class="grid-stats">
+                                <div class="stat-card">
+                                    <span class="stat-label">Эмоция</span>
+                                    <div class="stat-value"><span class="stat-icon">${emotion.emoji}</span> ${emotion.text}</div>
+                                </div>
+                                <div class="stat-card">
+                                    <span class="stat-label">Возраст</span>
+                                    <div class="stat-value"><span class="stat-icon">🎂</span> ${face.AgeRange.Low}-${face.AgeRange.High} лет</div>
+                                </div>
+                                <div class="stat-card">
+                                    <span class="stat-label">Улыбка</span>
+                                    <div class="stat-value"><span class="stat-icon">${face.Smile.Value ? '😁' : '😐'}</span> ${face.Smile.Value ? 'Есть' : 'Нет'}</div>
+                                </div>
+                                <div class="stat-card">
+                                    <span class="stat-label">Очки</span>
+                                    <div class="stat-value"><span class="stat-icon">${face.Eyeglasses.Value ? '👓' : '👀'}</span> ${face.Eyeglasses.Value ? 'Есть' : 'Нет'}</div>
+                                </div>
+                                <div class="stat-card">
+                                    <span class="stat-label">Растительность</span>
+                                    <div class="stat-value"><span class="stat-icon">🧔</span> ${face.Beard.Value || face.Mustache.Value ? 'Есть' : 'Нет'}</div>
+                                </div>
+                                <div class="stat-card">
+                                    <span class="stat-label">Глаза/Рот</span>
+                                    <div class="stat-value"><span class="stat-icon">👁️</span> ${face.EyesOpen.Value ? 'Откр' : 'Закр'} / ${face.MouthOpen.Value ? 'Откр' : 'Закр'}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="quality-banner">
+                                <span>📸</span>
+                                <span><b>Качество фото:</b> Освещенность ${Math.round(face.Quality.Brightness)}% • Резкость ${Math.round(face.Quality.Sharpness)}%</span>
+                            </div>
+                        </div>
+                    `;
                 });
+                
+                container.innerHTML = html;
+                
+                // Прокручиваем к результатам
+                setTimeout(() => {
+                    container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
+
             } else {
-                container.innerHTML = "<p>Лица не обнаружены. Попробуйте другое фото!</p>";
+                container.innerHTML = `
+                    <div class="result-item" style="text-align: center; padding: 30px;">
+                        <div style="font-size: 3rem; margin-bottom: 10px;">🤷‍♂️</div>
+                        <h3 style="margin-bottom: 8px;">Лица не обнаружены</h3>
+                        <p style="color: var(--text-muted); font-size: 0.95rem;">Попробуйте загрузить более четкую фотографию, где хорошо видно лицо.</p>
+                        <button class="btn" style="margin-top: 20px;" onclick="location.reload()">Загрузить другое фото</button>
+                    </div>
+                `;
             }
         }
-
-        // Вспомогательная функция для перевода эмоций
-        function translateEmotion(type) {
-            const emotions = {
-                'HAPPY': 'Счастье', 'SAD': 'Грусть', 'ANGRY': 'Гнев',
-                'CONFUSED': 'Смущение', 'DISGUSTED': 'Отвращение',
-                'SURPRISED': 'Удивление', 'CALM': 'Спокойствие', 'UNKNOWN': 'Неизвестно'
-            };
-            return emotions[type] || type;
-        }
     </script>
-
 </body>
-
 </html>
